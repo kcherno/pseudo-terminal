@@ -270,6 +270,11 @@ public:
 	return sz;
     }
 
+    void swap(mutable_buffer& rhs) noexcept
+    {
+	std::swap(*this, rhs);
+    }
+
 private:
     std::array<value_type, N> buffer;
 
