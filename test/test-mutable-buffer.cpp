@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "mutable_buffer.hpp"
+#include "buffer/mutable_buffer.hpp"
 
 BOOST_AUTO_TEST_SUITE(mutable_buffer);
 
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE(success)
     terminal::mutable_buffer<int, 5> empty;
     terminal::mutable_buffer<int, 5> full {1, 2, 3, 4, 5};
 
-    std::swap(empty, full);
+    empty.swap(full);
 
     BOOST_TEST(((empty.front() == 1) && (empty.back() == 5) && empty.size() == 5));
 

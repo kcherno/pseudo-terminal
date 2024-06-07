@@ -58,10 +58,10 @@ enum class terminal::baud_rate {
 
 constexpr int terminal::actual_baud_rate(baud_rate speed) noexcept
 {
+    using enum baud_rate;
+
     switch (speed)
     {
-	using enum baud_rate;
-
     case baud_0:       return 0;
     case baud_50:      return 50;
     case baud_75:      return 75;
@@ -91,7 +91,6 @@ constexpr int terminal::actual_baud_rate(baud_rate speed) noexcept
     case baud_2000000: return 2000000;
 
     default:           return -1;
-
     }
 }
 
