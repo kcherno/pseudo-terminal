@@ -140,6 +140,11 @@ public:
 	return const_cast<reference>(const_cast<const_this>(this)->back());
     }
 
+    const_iterator cbegin() const noexcept
+    {
+	return buffer.cbegin();
+    }
+
     const_iterator begin() const noexcept
     {
 	return buffer.begin();
@@ -150,14 +155,19 @@ public:
 	return const_cast<iterator>(const_cast<const_this>(this)->begin());
     }
 
-    const_iterator cbegin() const noexcept
-    {
-	return buffer.cbegin();
-    }
-
     const_iterator cend() const noexcept
     {
 	return std::next(cbegin(), size());
+    }
+
+    const_iterator end() const noexcept
+    {
+	return cend();
+    }
+
+    iterator end() noexcept
+    {
+	return const_cast<iterator>(const_cast<const_this>(this)->end());
     }
 
     void clear() noexcept
@@ -173,9 +183,29 @@ public:
 	return std::make_reverse_iterator(cend());
     }
 
+    const_reverse_iterator rbegin() const noexcept
+    {
+	return crbegin();
+    }
+
+    reverse_iterator rbegin() noexcept
+    {
+	return std::make_reverse_iterator(end());
+    }
+
     const_reverse_iterator crend() const noexcept
     {
 	return std::make_reverse_iterator(cbegin());
+    }
+
+    const_reverse_iterator rend() const noexcept
+    {
+	return crend();
+    }
+
+    reverse_iterator rend() noexcept
+    {
+	return std::make_reverse_iterator(begin());
     }
 
     const_pointer data() const noexcept
@@ -191,16 +221,6 @@ public:
     bool empty() const noexcept
     {
 	return size() == 0;
-    }
-
-    const_iterator end() const noexcept
-    {
-	return std::next(begin(), size());
-    }
-
-    iterator end() noexcept
-    {
-	return const_cast<iterator>(const_cast<const_this>(this)->end());
     }
 
     const_reference front() const
@@ -245,26 +265,6 @@ public:
 	buffer[sz++] = std::forward<U>(value);
     }
 
-    const_reverse_iterator rbegin() const noexcept
-    {
-	return std::make_reverse_iterator(end());
-    }
-
-    reverse_iterator rbegin() noexcept
-    {
-	return std::make_reverse_iterator(end());
-    }
-
-    const_reverse_iterator rend() const noexcept
-    {
-	return std::make_reverse_iterator(begin());
-    }
-
-    reverse_iterator rend() noexcept
-    {
-	return std::make_reverse_iterator(begin());
-    }
-    
     constexpr size_type size() const noexcept
     {
 	return sz;
