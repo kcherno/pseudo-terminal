@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <algorithm>
 #include <iterator>
+#include <compare>
 #include <array>
 
 namespace terminal
@@ -115,6 +116,22 @@ public:
 	}
 
 	return *this;
+    }
+
+    std::strong_ordering operator<=>(const mutable_buffer& rhs) const
+    {
+	return std::lexicographical_compare_three_way(cbegin(), cend(),
+						      rhs.cbegin(), rhs.cend());
+    }
+
+    constexpr bool operator==(const mutable_buffer& rhs) const noexcept
+    {
+	return std::equal(cbegin(), cend(), rhs.cbegin(), rhs.end());
+    }
+
+    constexpr bool operator!=(const mutable_buffer& rhs) const noexcept
+    {
+	return (not this->operator==(rhs));
     }
 
     const_reference at(size_type n) const

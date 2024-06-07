@@ -216,4 +216,33 @@ BOOST_AUTO_TEST_CASE(success)
 }
 BOOST_AUTO_TEST_SUITE_END();
 
+BOOST_AUTO_TEST_SUITE(comparison);
+BOOST_AUTO_TEST_CASE(success)
+{
+    terminal::mutable_buffer<int, 5> lhs_empty, rhs_empty;
+
+    BOOST_TEST(lhs_empty == rhs_empty);
+
+    terminal::mutable_buffer<char, 5> lhs_fbuf {'a', 'b', 'c', 'd', 'e'};
+    terminal::mutable_buffer<char, 5> rhs_fbuf {'a', 'b', 'c', 'd', 'e'};
+
+    BOOST_TEST(lhs_fbuf == rhs_fbuf);
+
+    terminal::mutable_buffer<char, 5> lhs_nfbuf {'a', 'b'};
+    terminal::mutable_buffer<char, 5> rhs_nfbuf {'a'};
+
+    BOOST_TEST(lhs_nfbuf != rhs_nfbuf);
+
+    terminal::mutable_buffer<char, 3> lhs_l {'a', 'b', 'c'};
+    terminal::mutable_buffer<char, 3> rhs_l {'b', 'a', 'c'};
+
+    BOOST_TEST(lhs_l < rhs_l);
+
+    terminal::mutable_buffer<char, 3> lhs_g {'c', 'a', 'b'};
+    terminal::mutable_buffer<char, 3> rhs_g {'c', 'a', 'a'};
+
+    BOOST_TEST(lhs_g > rhs_g);
+}
+BOOST_AUTO_TEST_SUITE_END();
+
 BOOST_AUTO_TEST_SUITE_END();
