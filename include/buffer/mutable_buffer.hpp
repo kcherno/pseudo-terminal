@@ -5,12 +5,16 @@
 #include <algorithm>
 #include <iterator>
 #include <compare>
+#include <istream>
 #include <array>
 
 namespace terminal
 {
     template<typename T, std::size_t N>
     class mutable_buffer;
+
+    template<typename T, std::size_t N>
+    std::basic_istream<T>& operator>>(std::basic_istream<T>&, mutable_buffer<T, N>&);
 }
 
 template<typename T, std::size_t N>
@@ -78,7 +82,7 @@ public:
 	this->operator=(mutable_buffer {ilist.begin(), ilist.end()});
     }
 
-    mutable_buffer(const mutable_buffer& other)
+    explicit mutable_buffer(const mutable_buffer& other)
 	noexcept(std::is_nothrow_copy_constructible_v<value_type>) :
 
 	mutable_buffer{}
@@ -133,6 +137,8 @@ public:
     {
 	return (not this->operator==(rhs));
     }
+
+    friend std::basic_istream<T>& operator>><>(std::basic_istream<T>&, mutable_buffer&);
 
     const_reference at(size_type n) const
     {
@@ -297,3 +303,19 @@ private:
 
     size_type sz;
 };
+
+template<typename T, std::size_t N>
+std::basic_istream<T>&
+terminal::operator>>(std::basic_istream<T>& input, mutable_buffer<T, N>& mbuf)
+{
+    auto tmp_mbuf {mbuf};
+
+    input.read(tmp_mbuf.buffer.data(), tmp_mbuf.max_size());
+
+    tmp_mbuf.sz = input.gcount();
+
+    if (input.good())
+	mbuf.swap(tmp_mbuf);
+
+    return input;
+}
