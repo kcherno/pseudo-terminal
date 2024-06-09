@@ -6,6 +6,7 @@
 #include <iterator>
 #include <compare>
 #include <istream>
+#include <string>
 #include <array>
 
 namespace terminal
@@ -308,14 +309,18 @@ template<typename T, std::size_t N>
 std::basic_istream<T>&
 terminal::operator>>(std::basic_istream<T>& input, mutable_buffer<T, N>& mbuf)
 {
-    auto tmp_mbuf {mbuf};
+    std::basic_string<T> string;
 
-    input.read(tmp_mbuf.buffer.data(), tmp_mbuf.max_size());
+    input >> string;
 
-    tmp_mbuf.sz = input.gcount();
+    if (not (input.bad() || input.fail()))
+    {
+	auto length = std::min(string.size(), mbuf.max_size());
 
-    if (input.good())
-	mbuf.swap(tmp_mbuf);
+	std::copy_n(string.cbegin(), length, mbuf.buffer.data());
+
+	mbuf.sz = string.size();
+    }
 
     return input;
 }
