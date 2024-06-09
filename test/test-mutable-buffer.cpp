@@ -3,7 +3,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
-#include <iostream>
+#include <istream>
 
 #include "buffer/mutable_buffer.hpp"
 
@@ -242,6 +242,52 @@ BOOST_AUTO_TEST_CASE(success)
     terminal::mutable_buffer<char, 3> rhs_g {'c', 'a', 'a'};
 
     BOOST_TEST(lhs_g > rhs_g);
+}
+BOOST_AUTO_TEST_SUITE_END();
+
+BOOST_AUTO_TEST_SUITE(overloaded_input_operator);
+BOOST_AUTO_TEST_CASE(success)
+{
+    std::istringstream standard_input {"Hello world"};
+
+    terminal::mutable_buffer<char, 5> buffer;
+
+    standard_input >> buffer;
+
+    BOOST_CHECK_EQUAL(buffer.at(0),  'H');
+    BOOST_CHECK_EQUAL(buffer.at(4),  'o');
+    BOOST_CHECK_EQUAL(buffer.back(), 'o');
+    BOOST_CHECK_EQUAL(*buffer.cbegin(),  'H');
+    BOOST_CHECK_EQUAL(*buffer.crbegin(), 'o');
+
+    BOOST_CHECK_NE(buffer.data(), nullptr);
+    BOOST_CHECK_NE(buffer.empty(),   true);
+    BOOST_CHECK_EQUAL(buffer.front(), 'H');
+
+    BOOST_CHECK_EQUAL(buffer.size(), standard_input.gcount());
+    BOOST_CHECK_EQUAL(buffer.size(), buffer.max_size());
+    BOOST_CHECK_EQUAL(std::string(buffer.cbegin(), buffer.cend()),
+		      standard_input.str().substr(0, buffer.size()));
+}
+
+BOOST_AUTO_TEST_CASE(failure)
+{
+    std::istringstream standard_input {"Hello world"};
+
+    terminal::mutable_buffer<char, 5> buffer;
+
+    standard_input.setstate(std::ios_base::failbit);
+
+    standard_input >> buffer;
+
+    BOOST_REQUIRE_THROW(buffer.at(0),   std::out_of_range);
+    BOOST_REQUIRE_THROW(buffer.back(),  std::out_of_range);
+    BOOST_CHECK_EQUAL(buffer.cbegin(),  buffer.cend());
+    BOOST_CHECK_EQUAL(buffer.data(),    nullptr);
+    BOOST_CHECK_EQUAL(buffer.empty(),   true);
+    BOOST_REQUIRE_THROW(buffer.front(), std::out_of_range);
+    BOOST_CHECK_EQUAL(buffer.size(),    0);
+    BOOST_CHECK_EQUAL(std::string(buffer.cbegin(), buffer.cend()), "");
 }
 BOOST_AUTO_TEST_SUITE_END();
 
