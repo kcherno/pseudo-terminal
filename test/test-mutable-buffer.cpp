@@ -250,12 +250,11 @@ BOOST_AUTO_TEST_CASE(success)
 {
     std::istringstream standard_input {"Hello world"};
 
-    terminal::mutable_buffer<char, 5> buffer;
+    terminal::mutable_buffer<char, 20> buffer;
 
     standard_input >> buffer;
 
     BOOST_CHECK_EQUAL(buffer.at(0),  'H');
-    BOOST_CHECK_EQUAL(buffer.at(4),  'o');
     BOOST_CHECK_EQUAL(buffer.back(), 'o');
     BOOST_CHECK_EQUAL(*buffer.cbegin(),  'H');
     BOOST_CHECK_EQUAL(*buffer.crbegin(), 'o');
@@ -264,17 +263,29 @@ BOOST_AUTO_TEST_CASE(success)
     BOOST_CHECK_NE(buffer.empty(),   true);
     BOOST_CHECK_EQUAL(buffer.front(), 'H');
 
-    BOOST_CHECK_EQUAL(buffer.size(), standard_input.gcount());
-    BOOST_CHECK_EQUAL(buffer.size(), buffer.max_size());
-    BOOST_CHECK_EQUAL(std::string(buffer.cbegin(), buffer.cend()),
-		      standard_input.str().substr(0, buffer.size()));
+    BOOST_CHECK_EQUAL(buffer.size(), 5);
+    BOOST_CHECK_EQUAL(std::string(buffer.cbegin(), buffer.cend()), "Hello");
+
+    standard_input >> buffer;
+
+    BOOST_CHECK_EQUAL(buffer.at(0),  'w');
+    BOOST_CHECK_EQUAL(buffer.back(), 'd');
+    BOOST_CHECK_EQUAL(*buffer.cbegin(),  'w');
+    BOOST_CHECK_EQUAL(*buffer.crbegin(), 'd');
+
+    BOOST_CHECK_NE(buffer.data(), nullptr);
+    BOOST_CHECK_NE(buffer.empty(),   true);
+    BOOST_CHECK_EQUAL(buffer.front(), 'w');
+
+    BOOST_CHECK_EQUAL(buffer.size(), 5);
+    BOOST_CHECK_EQUAL(std::string(buffer.cbegin(), buffer.cend()), "world");
 }
 
 BOOST_AUTO_TEST_CASE(failure)
 {
     std::istringstream standard_input {"Hello world"};
 
-    terminal::mutable_buffer<char, 5> buffer;
+    terminal::mutable_buffer<char, 20> buffer;
 
     standard_input.setstate(std::ios_base::failbit);
 
