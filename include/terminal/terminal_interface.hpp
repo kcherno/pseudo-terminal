@@ -1,7 +1,6 @@
 #pragma once
 
 #include <system_error>
-
 #include <cerrno>
 
 extern "C"
@@ -31,12 +30,6 @@ public:
 	return (static_cast<baud_rate>(::cfgetispeed(&get_termios())));
     }
 
-    template<terminal_flag T>
-    void set_flag(T) noexcept;
-
-    template<terminal_flag... Args>
-    void set_flags(Args...) noexcept;
-
     void set_speed(baud_rate speed, std::error_code& error) noexcept
     {
 	if (::cfsetispeed(&get_termios(), static_cast<speed_t>(speed)) == -1)
@@ -51,18 +44,6 @@ public:
 	    throw std::system_error {error, __func__};
     }
 
-    template<terminal_flag T>
-    bool test_flag(T) const noexcept;
-
-    template<terminal_flag... Args>
-    bool test_flags(Args...) const noexcept;
-
-    template<terminal_flag T>
-    void unset_flag(T) noexcept;
-
-    template<terminal_flag... Args>
-    void unset_flags(Args...) noexcept;
-
     const ::termios& get_termios() const noexcept
     {
 	return modified_tattr;
@@ -70,7 +51,9 @@ public:
 
     ::termios& get_termios() noexcept
     {
-	return modified_tattr;
+	using const_this = const terminal_interface*;
+
+	return const_cast<::termios&>(const_cast<const_this>(this)->get_termios());
     }
 
     void set_attr(optional_actions option, std::error_code& error) const noexcept
@@ -86,6 +69,44 @@ public:
 	if (set_attr(option, error); error)
 	    throw std::system_error {error, __func__};
     }
+
+    void set_minimum_transfer_bytes(int number) noexcept
+    {
+	get_termios().c_cc[VMIN] = number;
+    }
+
+    void unset_minimum_transfer_byfes() noexcept
+    {
+	set_minimum_transfer_bytes(0);
+    }
+
+    void set_timer(int ds) noexcept
+    {
+	get_termios().c_cc[VTIME] = ds;
+    }
+
+    void unset_timer() noexcept
+    {
+	get_termios().c_cc[VTIME] = 0;
+    }
+
+    template<terminal_flag T>
+    void set_flag(T) noexcept;
+
+    template<terminal_flag... Args>
+    void set_flags(Args...) noexcept;
+
+    template<terminal_flag T>
+    bool test_flag(T) const noexcept;
+
+    template<terminal_flag... Args>
+    bool test_flags(Args...) const noexcept;
+
+    template<terminal_flag T>
+    void unset_flag(T) noexcept;
+
+    template<terminal_flag... Args>
+    void unset_flags(Args...) noexcept;
 
 protected:
     terminal_interface();
