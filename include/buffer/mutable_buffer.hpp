@@ -1,6 +1,7 @@
 #pragma once
 
 #include <initializer_list>
+#include <system_error>
 #include <type_traits>
 #include <algorithm>
 #include <iterator>
@@ -9,6 +10,15 @@
 #include <string>
 #include <array>
 
+#include <cerrno>
+
+extern "C"
+{
+
+#include <unistd.h>
+
+}
+
 namespace terminal
 {
     template<typename T, std::size_t N>
@@ -16,6 +26,12 @@ namespace terminal
 
     template<typename T, std::size_t N>
     std::basic_istream<T>& operator>>(std::basic_istream<T>&, mutable_buffer<T, N>&);
+
+    template<typename T, std::size_t N>
+    std::size_t read(int, mutable_buffer<T, N>&, std::error_code&) noexcept;
+
+    template<typename T, std::size_t N>
+    std::size_t read(int, mutable_buffer<T, N>&);
 }
 
 template<typename T, std::size_t N>
@@ -289,6 +305,8 @@ public:
 	buffer[sz++] = std::forward<U>(value);
     }
 
+    friend std::size_t read<>(int, mutable_buffer&, std::error_code&) noexcept;
+
     constexpr size_type size() const noexcept
     {
 	return sz;
@@ -323,4 +341,36 @@ terminal::operator>>(std::basic_istream<T>& input, mutable_buffer<T, N>& mbuf)
     }
 
     return input;
+}
+
+template<typename T, std::size_t N>
+std::size_t
+terminal::read(int fd, mutable_buffer<T, N>& mbuf, std::error_code& error) noexcept
+{
+    mutable_buffer<T, N> tmp_mbuf;
+
+    std::size_t count = ::read(fd, tmp_mbuf.buffer.data(), tmp_mbuf.max_size());
+
+    if (count == -1)
+	error = std::error_code {errno, std::system_category()};
+
+    else
+    {
+	tmp_mbuf.sz = count;
+
+	mbuf.swap(tmp_mbuf);
+    }
+
+    return count;
+}
+
+template<typename T, std::size_t N>
+std::size_t terminal::read(int fd, mutable_buffer<T, N>& mbuf)
+{
+    std::error_code error;
+
+    if (read(fd, mbuf, error); error)
+	throw std::system_error {error, __func__};
+
+    return mbuf.size();
 }
