@@ -3,6 +3,8 @@
 #include <concepts>
 #include <string>
 
+#include "confing/escape_sequence_type.hpp"
+
 namespace ansi::escape
 {
     enum class cursor;
@@ -66,10 +68,6 @@ constexpr std::string_view ansi::escape::get_sequence(T sequence) noexcept
 
 	    "\033[u", // restores the cursor to the last saved position (SCO)
 	    "\033[s"  // save cursor position (SCO)
-
-#else
-
-  #error define the DEC or SCO escape sequence
 
 #endif
 	};
