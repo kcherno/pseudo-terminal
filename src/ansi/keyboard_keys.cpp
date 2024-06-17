@@ -3,7 +3,7 @@
 
 #include "ansi/keyboard_keys.hpp"
 
-ansi::escape::keyboard ansi::escape::get_keyboard_key(std::string_view key)
+ansi::escape::keyboard ansi::escape::keyboard_enumerator(std::string_view key)
 {
     const static std::unordered_map<std::string_view, keyboard> keys {
 	{"\177",     keyboard::backspace},

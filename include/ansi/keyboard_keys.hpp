@@ -1,11 +1,18 @@
 #pragma once
 
+#include <concepts>
+
 namespace ansi::escape
 {
     enum class keyboard;
     enum class keypad;
 
-    keyboard get_keyboard_key(std::string_view);
+    inline keyboard keyboard_enumerator(const char*, std::size_t);
+
+    template<std::contiguous_iterator T>
+    inline keyboard keyboard_enumerator(T, T);
+
+    keyboard keyboard_enumerator(std::string_view);
 }
 
 enum class ansi::escape::keyboard {
@@ -103,3 +110,16 @@ enum class ansi::escape::keypad {
     insert_key,
     delete_key
 };
+
+ansi::escape::keyboard
+inline ansi::escape::keyboard_enumerator(const char* pointer, std::size_t size)
+{
+    return keyboard_enumerator(std::string_view {pointer, size});
+}
+
+template<std::contiguous_iterator T>
+ansi::escape::keyboard
+inline ansi::escape::keyboard_enumerator(T first, T last)
+{
+    return keyboard_enumerator(std::string_view {first, last});
+}
