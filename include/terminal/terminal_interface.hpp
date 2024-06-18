@@ -1,11 +1,14 @@
 #pragma once
 
 #include <system_error>
+#include <stdexcept>
 #include <cerrno>
+#include <limits>
 
 extern "C"
 {
 
+#include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
 
@@ -22,7 +25,35 @@ class terminal::terminal_interface {
 public:    
     virtual ~terminal_interface()
     {
-	::tcsetattr(STDIN_FILENO, TCSANOW, &original_tattr);
+	::tcsetattr(STDIN_FILENO, TCSANOW, &old_termios);
+
+	::ioctl(STDIN_FILENO, TIOCSWINSZ, &old_winsize);
+    }
+
+    int get_colums() const noexcept
+    {
+	return new_winsize.ws_col;
+    }
+
+    void set_colums(int size)
+    {
+	check_screen_resolution(size);
+
+	new_winsize.ws_col =
+	    static_cast<decltype(new_winsize.ws_col)>(size);
+    }
+
+    int get_rows() const noexcept
+    {
+	return new_winsize.ws_row;
+    }
+
+    void set_rows(int size)
+    {
+	check_screen_resolution(size);
+
+	new_winsize.ws_row =
+	    static_cast<decltype(new_winsize.ws_row)>(size);
     }
 
     baud_rate get_speed() const noexcept
@@ -46,7 +77,7 @@ public:
 
     const ::termios& get_termios() const noexcept
     {
-	return modified_tattr;
+	return new_termios;
     }
 
     ::termios& get_termios() noexcept
@@ -112,8 +143,18 @@ protected:
     terminal_interface();
 
 private:
-    ::termios original_tattr;
-    ::termios modified_tattr;
+    void check_screen_resolution(int size) const
+    {
+	if (size < std::numeric_limits<unsigned short>::min() ||
+	    size > std::numeric_limits<unsigned short>::max())
+	{
+	    throw std::out_of_range {"screen resolution exceeded"};
+	}
+    }
+
+private:
+    ::termios old_termios, new_termios;
+    ::winsize old_winsize, new_winsize;
 };
 
 template<terminal::terminal_flag T>
