@@ -9,6 +9,6 @@
 #endif
 
 #if !defined(DEC_ESCAPE_SEQUENCES) && !defined(SCO_ESCAPE_SEQUENCES)
-  #error DEFINE ESCAPE SEQUENCE TYPE
+#  error DEFINE ESCAPE SEQUENCE TYPE
 
 #endif
