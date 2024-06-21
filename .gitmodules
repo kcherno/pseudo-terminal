@@ -1,0 +1,3 @@
+[submodule "feature-macros"]
+	path = feature-macros
+	url = https://github.com/kcherno/feature-macros
