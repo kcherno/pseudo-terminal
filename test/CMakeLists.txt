@@ -1,4 +1,5 @@
 set(SOURCE_FILES
+    cursor_interface_test.cpp
     test-mutable-buffer.cpp)
 
 find_library(BOOSTTEST libboost_unit_test_framework.a)
@@ -9,7 +10,7 @@ if (EXISTS ${BOOSTTEST})
 
 	add_executable(${TARGET_NAME} ${SOURCE_FILE})
 
-	target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
+	target_include_directories(${TARGET_NAME} PUBLIC ${PROJECT_INCLUDE_DIR})
 
 	target_link_libraries(${TARGET_NAME} PUBLIC ${BOOSTTEST})
 
