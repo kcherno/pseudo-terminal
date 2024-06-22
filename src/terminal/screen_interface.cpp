@@ -13,7 +13,7 @@ terminal::screen_interface::rgb_color(color_format format, int r, int g, int b) 
 	"\033[38;2;%d;%d;%dm"
     };
 
-    constexpr static int color_buffer_size = 20;
+    constexpr int color_buffer_size = 20;
 
     std::string buf;
 
